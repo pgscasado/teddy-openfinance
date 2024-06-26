@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  NotFoundException,
   Param,
   Post,
   Res,
@@ -41,10 +40,7 @@ export class UrlsController {
     @Param('shortUrl') shortened: string,
     @Res() res: Response,
   ) {
-    const urlData = await this.urlsService.redirect(shortened);
-    if (!urlData) {
-      throw new NotFoundException('Url does not exist');
-    }
-    res.redirect(urlData.originalUrl);
+    const originalUrl = await this.urlsService.redirect(shortened);
+    res.redirect(originalUrl);
   }
 }

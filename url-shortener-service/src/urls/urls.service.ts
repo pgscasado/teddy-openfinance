@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -24,9 +24,13 @@ export class UrlsService {
   }
 
   async redirect(shortUrl: string) {
-    return await this.prisma.url.findFirst({
+    const url = await this.prisma.url.findFirst({
       where: { id: this.shortenedToId(shortUrl) },
     });
+    if (!url) {
+      throw new NotFoundException('Url does not exist');
+    }
+    return url.originalUrl;
   }
 
   async delete(id: number) {
