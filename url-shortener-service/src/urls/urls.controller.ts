@@ -9,12 +9,14 @@ import {
   Put,
   Req,
   Res,
+  UseFilters,
 } from '@nestjs/common';
 import { UrlsService } from './urls.service';
 import { ZodPipe } from 'src/zod/zod.pipe';
 import * as UrlsSchemas from './urls-schemas';
 import { z } from 'zod';
 import { Response } from 'express';
+import { ZodFilter } from 'src/zod/zod.filter';
 
 @Controller('')
 export class UrlsController {
@@ -26,6 +28,7 @@ export class UrlsController {
   }
 
   @Post()
+  @UseFilters(ZodFilter)
   async createUrl(
     @Body(new ZodPipe(UrlsSchemas.createUrlSchema))
     createUrlDto: z.infer<typeof UrlsSchemas.createUrlSchema>,
@@ -60,6 +63,7 @@ export class UrlsController {
   }
 
   @Put(':shortUrl')
+  @UseFilters(ZodFilter)
   async editUrl(
     @Param('shortUrl') shortened: string,
     @Body(new ZodPipe(UrlsSchemas.updateUrlSchema))
