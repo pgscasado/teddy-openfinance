@@ -3,16 +3,20 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
   Post,
   Put,
+  Req,
+  UnauthorizedException,
   UseFilters,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ZodPipe } from 'src/zod/zod.pipe';
 import * as UserSchemas from './user-schemas';
 import { z } from 'zod';
 import { ZodFilter } from 'src/zod/zod.filter';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { isAuthJWT } from 'src/auth/types';
 
 @Controller('users')
 export class UsersController {
@@ -27,27 +31,37 @@ export class UsersController {
     return this.usersService.create(user);
   }
 
-  @Get(':id')
-  getUser(@Param('id') id: string) {
-    return this.usersService.get(+id);
+  @Get('me')
+  @UseGuards(AuthGuard)
+  getUser(@Req() req: Request) {
+    if (!isAuthJWT(req['jwt_payload'])) {
+      throw new UnauthorizedException();
+    }
+    const id = req['jwt_payload'].sub;
+    return this.usersService.get(id);
   }
 
-  @Get('')
-  getAllUsers() {
-    return this.usersService.list();
+  @Delete('me')
+  @UseGuards(AuthGuard)
+  deleteUser(@Req() req: Request) {
+    if (!isAuthJWT(req['jwt_payload'])) {
+      throw new UnauthorizedException();
+    }
+    const id = req['jwt_payload'].sub;
+    return this.usersService.delete(id);
   }
 
-  @Delete(':id')
-  deleteUser(@Param('id') id: string) {
-    return this.usersService.delete(+id);
-  }
-
-  @Put(':id')
+  @Put('me')
+  @UseGuards(AuthGuard)
   updateUser(
-    @Param('id') id: string,
+    @Req() req: Request,
     @Body(new ZodPipe(UserSchemas.createUrlSchema))
     data: z.infer<typeof UserSchemas.createUrlSchema>,
   ) {
-    return this.usersService.update(+id, data);
+    if (!isAuthJWT(req['jwt_payload'])) {
+      throw new UnauthorizedException();
+    }
+    const id = req['jwt_payload'].sub;
+    return this.usersService.update(id, data);
   }
 }
