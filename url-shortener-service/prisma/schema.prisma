@@ -39,4 +39,7 @@ model User {
   username      String
   pwd           String
   urls          Url[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  deletedAt     DateTime?
 }
