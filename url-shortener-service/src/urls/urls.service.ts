@@ -16,9 +16,12 @@ export class UrlsService {
     return this.idToShortened(newUrl.id);
   }
 
-  async getUrls() {
+  async getUrls(ownerId: number) {
     return (
       await this.prisma.url.findMany({
+        where: {
+          ownerId,
+        },
         include: {
           _count: {
             select: {
@@ -34,10 +37,11 @@ export class UrlsService {
     }));
   }
 
-  async getUrl(shortened: string) {
+  async getUrl(shortened: string, ownerId: number) {
     return this.prisma.url.findFirst({
       where: {
         id: this.shortenedToId(shortened),
+        ownerId,
       },
       include: {
         urlAcesses: true,
@@ -70,19 +74,24 @@ export class UrlsService {
     return url.originalUrl;
   }
 
-  async delete(shortened: string) {
+  async delete(shortened: string, ownerId: number) {
     return new Promise<void>(async (resolve) => {
       await this.prisma.url.deleteMany({
-        where: { id: this.shortenedToId(shortened) },
+        where: { id: this.shortenedToId(shortened), ownerId },
       });
       resolve();
     });
   }
 
-  async update(shortened: string, data: Prisma.UrlUpdateInput) {
+  async update(
+    shortened: string,
+    ownerId: number,
+    data: Prisma.UrlUpdateInput,
+  ) {
     return this.prisma.url.update({
       where: {
         id: this.shortenedToId(shortened),
+        ownerId,
       },
       data,
     });

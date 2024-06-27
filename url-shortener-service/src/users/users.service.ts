@@ -24,6 +24,12 @@ export class UsersService {
     });
   }
 
+  getByUsername(username: string) {
+    return this.prisma.user.findFirst({
+      where: { username },
+    });
+  }
+
   async list() {
     return this.prisma.user.findMany();
   }

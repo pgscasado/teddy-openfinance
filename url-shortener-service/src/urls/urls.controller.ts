@@ -9,7 +9,9 @@ import {
   Put,
   Req,
   Res,
+  UnauthorizedException,
   UseFilters,
+  UseGuards,
 } from '@nestjs/common';
 import { UrlsService } from './urls.service';
 import { ZodPipe } from 'src/zod/zod.pipe';
@@ -17,28 +19,50 @@ import * as UrlsSchemas from './urls-schemas';
 import { z } from 'zod';
 import { Response } from 'express';
 import { ZodFilter } from 'src/zod/zod.filter';
+import { AuthGuard, LooseAuth } from 'src/auth/auth.guard';
+import { isAuthJWT } from 'src/auth/types';
 
 @Controller('')
 export class UrlsController {
   constructor(private urlsService: UrlsService) {}
 
   @Delete(':shortUrl')
-  async deleteUrl(@Param('shortUrl') shortened: string) {
-    return await this.urlsService.delete(shortened);
+  @UseGuards(AuthGuard)
+  async deleteUrl(@Param('shortUrl') shortened: string, @Req() req: Request) {
+    if (!isAuthJWT(req['jwt_payload'])) {
+      throw new UnauthorizedException('Must be logged in to see all your URLs');
+    }
+    return await this.urlsService.delete(shortened, req['jwt_payload'].sub);
   }
 
   @Post()
+  @UseGuards(AuthGuard)
+  @LooseAuth(true)
   @UseFilters(ZodFilter)
   async createUrl(
     @Body(new ZodPipe(UrlsSchemas.createUrlSchema))
     createUrlDto: z.infer<typeof UrlsSchemas.createUrlSchema>,
+    @Req() req: Request,
   ) {
-    return this.urlsService.create(createUrlDto);
+    const createInput: Parameters<typeof this.urlsService.create>[0] =
+      createUrlDto;
+    if (isAuthJWT(req['jwt_payload'])) {
+      createInput['owner'] = {
+        connect: {
+          id: req['jwt_payload'].sub,
+        },
+      };
+    }
+    return this.urlsService.create(createInput);
   }
 
   @Get()
-  async getAllUrls() {
-    return this.urlsService.getUrls();
+  @UseGuards(AuthGuard)
+  async getAllUrls(@Req() req: Request) {
+    if (!isAuthJWT(req['jwt_payload'])) {
+      throw new UnauthorizedException('Must be logged in to see all your URLs');
+    }
+    return this.urlsService.getUrls(req['jwt_payload'].sub);
   }
 
   @Get(':shortUrl')
@@ -58,17 +82,29 @@ export class UrlsController {
   }
 
   @Get('inspect/:shortUrl')
-  async inspectShortUrl(@Param('shortUrl') shortened: string) {
-    return this.urlsService.getUrl(shortened);
+  @UseGuards(AuthGuard)
+  async inspectShortUrl(
+    @Param('shortUrl') shortened: string,
+    @Req() req: Request,
+  ) {
+    if (!isAuthJWT(req['jwt_payload'])) {
+      throw new UnauthorizedException();
+    }
+    return this.urlsService.getUrl(shortened, req['jwt_payload'].sub);
   }
 
   @Put(':shortUrl')
   @UseFilters(ZodFilter)
+  @UseGuards(AuthGuard)
   async editUrl(
     @Param('shortUrl') shortened: string,
     @Body(new ZodPipe(UrlsSchemas.updateUrlSchema))
     data: z.infer<typeof UrlsSchemas.updateUrlSchema>,
+    @Req() req: Request,
   ) {
-    return this.urlsService.update(shortened, data);
+    if (!isAuthJWT(req['jwt_payload'])) {
+      throw new UnauthorizedException();
+    }
+    return this.urlsService.update(shortened, req['jwt_payload'].sub, data);
   }
 }
