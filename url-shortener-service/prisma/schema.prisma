@@ -20,6 +20,8 @@ model Url {
   updatedAt     DateTime    @updatedAt
   deletedAt     DateTime?
   urlAcesses    UrlAccess[]
+  ownerId       Int?
+  owner         User?        @relation(fields: [ownerId], references: [id])
 }
 
 model UrlAccess {
@@ -30,4 +32,11 @@ model UrlAccess {
   userAgent     String
   ipAddress     String
   referrer      String
+}
+
+model User {
+  id            Int         @default(autoincrement()) @id
+  username      String
+  pwd           String
+  urls          Url[]
 }
