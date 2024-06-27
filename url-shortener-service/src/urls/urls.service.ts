@@ -6,12 +6,14 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class UrlsService {
   constructor(private prisma: PrismaService) {}
 
+  private normalizeUrl(url: string) {
+    return !['http://', 'https://'].some((p) => url.startsWith(p))
+      ? `https://${url}`
+      : url;
+  }
+
   async create(urlData: Prisma.UrlCreateInput) {
-    if (
-      !['http://', 'https://'].some((p) => urlData.originalUrl.startsWith(p))
-    ) {
-      urlData.originalUrl = `https://${urlData.originalUrl}`;
-    }
+    urlData.originalUrl = this.normalizeUrl(urlData.originalUrl);
     const newUrl = await this.prisma.url.create({ data: urlData });
     return this.idToShortened(newUrl.id);
   }
@@ -88,6 +90,13 @@ export class UrlsService {
     ownerId: number,
     data: Prisma.UrlUpdateInput,
   ) {
+    if (data.originalUrl) {
+      data.originalUrl = this.normalizeUrl(
+        typeof data.originalUrl === 'string'
+          ? data.originalUrl
+          : data.originalUrl.set!,
+      );
+    }
     return this.prisma.url.update({
       where: {
         id: this.shortenedToId(shortened),
