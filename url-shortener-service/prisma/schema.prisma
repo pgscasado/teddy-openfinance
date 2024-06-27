@@ -36,7 +36,7 @@ model UrlAccess {
 
 model User {
   id            Int         @default(autoincrement()) @id
-  username      String
+  username      String      @unique
   pwd           String
   urls          Url[]
   createdAt     DateTime    @default(now())
