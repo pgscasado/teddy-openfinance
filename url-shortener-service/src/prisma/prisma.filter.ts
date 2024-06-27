@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
-@Catch()
+@Catch(PrismaClientKnownRequestError)
 export class PrismaFilter<T extends PrismaClientKnownRequestError>
   implements ExceptionFilter
 {
