@@ -1,7 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
 import { ZodError } from 'zod';
 
-@Catch()
+@Catch(ZodError)
 export class ZodFilter<T extends ZodError> implements ExceptionFilter {
   catch(exception: T, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
