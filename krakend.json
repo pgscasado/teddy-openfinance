@@ -1,0 +1,36 @@
+{
+  "version": 3,
+  "name": "URL Shortener API Gateway",
+  "port": 80,
+  "cache_ttl": "3600s",
+  "timeout": "3000ms",
+  "endpoints": [
+    {
+      "endpoint": "/",
+      "method": "POST",
+      "backend": [
+        {
+          "url_pattern": "/",
+          "host": [
+            "http://url-shortener-service:8000"
+          ],
+          "extra_config": {}
+        }
+      ]
+    },
+    {
+      "endpoint": "/{shortcode}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "url_pattern": "/{shortcode}",
+          "host": [
+            "http://url-shortener-service:8000"
+          ],
+          "disable_host_sanitize": true
+        }
+      ]
+    }
+  ]
+}

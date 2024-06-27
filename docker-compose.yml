@@ -1,0 +1,14 @@
+version: '3'
+services:
+  krakend:
+    image: devopsfaith/krakend
+    ports:
+      - 80:80
+    volumes:
+      - ./krakend.json:/etc/krakend/krakend.json
+    depends_on:
+      - url-shortener-service
+  url-shortener-service:
+    build: ./url-shortener-service
+    ports:
+      - 8000:8000
