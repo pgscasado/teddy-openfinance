@@ -19,4 +19,15 @@ model Url {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   deletedAt     DateTime?
+  urlAcesses    UrlAccess[]
+}
+
+model UrlAccess {
+  id            Int         @default(autoincrement()) @id
+  url           Url         @relation(fields: [urlId], references: [id])
+  urlId         Int
+  accessedAt    DateTime    @default(now())
+  userAgent     String
+  ipAddress     String
+  referrer      String
 }

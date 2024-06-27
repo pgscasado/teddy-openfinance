@@ -3,8 +3,11 @@ import {
   Controller,
   Delete,
   Get,
+  Ip,
   Param,
   Post,
+  Put,
+  Req,
   Res,
 } from '@nestjs/common';
 import { UrlsService } from './urls.service';
@@ -17,15 +20,15 @@ import { Response } from 'express';
 export class UrlsController {
   constructor(private urlsService: UrlsService) {}
 
-  @Delete(':id')
-  async deleteUrl(@Param('id') id: string) {
-    return await this.urlsService.delete(+id);
+  @Delete(':shortUrl')
+  async deleteUrl(@Param('shortUrl') shortened: string) {
+    return await this.urlsService.delete(shortened);
   }
 
   @Post()
   async createUrl(
-    @Body(new ZodPipe(UrlsSchemas.getUrlSchema))
-    createUrlDto: z.infer<typeof UrlsSchemas.getUrlSchema>,
+    @Body(new ZodPipe(UrlsSchemas.createUrlSchema))
+    createUrlDto: z.infer<typeof UrlsSchemas.createUrlSchema>,
   ) {
     return this.urlsService.create(createUrlDto);
   }
@@ -39,8 +42,29 @@ export class UrlsController {
   async redirectToUrl(
     @Param('shortUrl') shortened: string,
     @Res() res: Response,
+    @Req() req: Request,
+    @Ip() ipAddress: string,
   ) {
-    const originalUrl = await this.urlsService.redirect(shortened);
+    const { referrer, headers } = req;
+    const originalUrl = await this.urlsService.redirect(shortened, {
+      ipAddress,
+      referrer: referrer || '',
+      userAgent: headers['user-agent'] || '',
+    });
     res.redirect(originalUrl);
+  }
+
+  @Get('inspect/:shortUrl')
+  async inspectShortUrl(@Param('shortUrl') shortened: string) {
+    return this.urlsService.getUrl(shortened);
+  }
+
+  @Put(':shortUrl')
+  async editUrl(
+    @Param('shortUrl') shortened: string,
+    @Body(new ZodPipe(UrlsSchemas.updateUrlSchema))
+    data: z.infer<typeof UrlsSchemas.updateUrlSchema>,
+  ) {
+    return this.urlsService.update(shortened, data);
   }
 }

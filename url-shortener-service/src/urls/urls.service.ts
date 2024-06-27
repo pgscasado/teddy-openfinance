@@ -17,15 +17,52 @@ export class UrlsService {
   }
 
   async getUrls() {
-    return (await this.prisma.url.findMany()).map(({ id }) => ({
+    return (
+      await this.prisma.url.findMany({
+        include: {
+          _count: {
+            select: {
+              urlAcesses: true,
+            },
+          },
+        },
+      })
+    ).map(({ id, _count: { urlAcesses } }) => ({
       id,
       url: `${process.env.BASE_URL}/${this.idToShortened(id)}`,
+      urlAcesses,
     }));
   }
 
-  async redirect(shortUrl: string) {
-    const url = await this.prisma.url.findFirst({
+  async getUrl(shortened: string) {
+    return this.prisma.url.findFirst({
+      where: {
+        id: this.shortenedToId(shortened),
+      },
+      include: {
+        urlAcesses: true,
+      },
+    });
+  }
+
+  async redirect(
+    shortUrl: string,
+    { userAgent, ipAddress, referrer }: Prisma.UrlAccessCreateWithoutUrlInput,
+  ) {
+    const url = await this.prisma.url.update({
       where: { id: this.shortenedToId(shortUrl) },
+      data: {
+        urlAcesses: {
+          create: {
+            userAgent,
+            ipAddress,
+            referrer,
+          },
+        },
+      },
+      select: {
+        originalUrl: true,
+      },
     });
     if (!url) {
       throw new NotFoundException('Url does not exist');
@@ -33,10 +70,21 @@ export class UrlsService {
     return url.originalUrl;
   }
 
-  async delete(id: number) {
+  async delete(shortened: string) {
     return new Promise<void>(async (resolve) => {
-      await this.prisma.url.deleteMany({ where: { id } });
+      await this.prisma.url.deleteMany({
+        where: { id: this.shortenedToId(shortened) },
+      });
       resolve();
+    });
+  }
+
+  async update(shortened: string, data: Prisma.UrlUpdateInput) {
+    return this.prisma.url.update({
+      where: {
+        id: this.shortenedToId(shortened),
+      },
+      data,
     });
   }
 

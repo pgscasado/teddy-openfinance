@@ -1,4 +1,8 @@
 import { z } from 'zod';
-export const getUrlSchema = z.object({
+export const createUrlSchema = z.object({
+  originalUrl: z.string(),
+});
+
+export const updateUrlSchema = z.object({
   originalUrl: z.string(),
 });
