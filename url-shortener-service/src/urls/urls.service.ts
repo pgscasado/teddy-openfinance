@@ -108,7 +108,7 @@ export class UrlsService {
   }
 
   private alphabet =
-    'abcdefghijklmnopqrstuvxyzABCDEFGHIJKLMNOPQRSTUVXYZ1234567890';
+    'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   private idToShortened(id: number): string {
     const output: string[] = [];
     while (id) {
