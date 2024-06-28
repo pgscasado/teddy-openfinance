@@ -36,6 +36,7 @@ model UrlAccess {
 
 model User {
   id            Int         @default(autoincrement()) @id
+  email         String      @unique
   username      String      @unique
   pwd           String
   urls          Url[]

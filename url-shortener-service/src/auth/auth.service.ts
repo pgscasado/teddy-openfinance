@@ -11,17 +11,15 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async authenticate(username: string, password: string) {
-    const user = await this.usersService.getByUsername(username);
-    const exception = new UnauthorizedException(
-      'Username or password is wrong.',
-    );
+  async authenticate(email: string, password: string) {
+    const user = await this.usersService.getByEmail(email);
+    const exception = new UnauthorizedException('Email or password is wrong.');
     if (!user || !(await compare(password, user.pwd))) {
       throw exception;
     }
     return this.jwtService.signAsync({
       sub: user.id,
-      username,
+      username: user.username,
     } satisfies AuthJWT);
   }
 }

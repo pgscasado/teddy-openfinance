@@ -13,6 +13,6 @@ export class AuthController {
   @UseFilters(ZodFilter)
   @UsePipes(new ZodPipe(authenticationSchema))
   authenticate(@Body() data: AuthenticationDTO) {
-    return this.authService.authenticate(data.username, data.password);
+    return this.authService.authenticate(data.email, data.password);
   }
 }

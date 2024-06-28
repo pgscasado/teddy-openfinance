@@ -26,11 +26,14 @@ const passwordSchema = z
   });
 
 export const createUserSchema = z.object({
+  email: z.string().email(),
   username: usernameSchema,
   pwd: passwordSchema,
 } satisfies { [k in keyof Prisma.UserCreateInput]: ZodTypeAny });
 
 export class CreateUserDTO implements z.infer<typeof createUserSchema> {
+  @ApiProperty()
+  email: string;
   @ApiProperty()
   username: string;
   @ApiProperty()
