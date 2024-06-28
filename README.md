@@ -34,8 +34,13 @@ Especificação Swagger da API está disponível em [/docs](https://url-shortene
     npm install
     ```
 
+3. Navegue até o serviço de encurtação de URL:
+   ```bash
+   cd url-shortener-service
+   ```
+
 3. Configure as variáveis de ambiente:
-    Crie um arquivo `.env` na raiz do projeto e adicione as variáveis necessárias:
+    Crie um arquivo `.env` na raiz do serviço e adicione as variáveis necessárias:
     ```env
     DATABASE_URL="file:./dev.db"
     BASE_URL="http://localhost:8000"
