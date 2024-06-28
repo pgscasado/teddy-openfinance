@@ -1,9 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 
 import { softDeleteExtension } from './extensions/softDelete.extension';
+import { urlLimitExtension } from './extensions/urlLimit.extension';
 
 function extendClient(base: PrismaClient) {
-  return base.$extends(softDeleteExtension);
+  return base.$extends(softDeleteExtension).$extends(urlLimitExtension);
 }
 
 class UntypedExtendedClient extends PrismaClient {
