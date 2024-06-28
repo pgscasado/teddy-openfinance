@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: teddy-openfinance-services
+  name: teddy-openfinance-services
+  namespace: teddy-openfinance
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: teddy-openfinance-services
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: teddy-openfinance-services
+    spec:
+      containers:
+      - image: registry.teddy-openfinance.com.br/backend:production
+        name: teddy-openfinance-services
+        ports:
+        - containerPort: 8445
+          protocol: TCP
+        envFrom:
+        - configMapRef:
+            name: envs
+        resources: {}
+status: {}
