@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
 import { ZodTypeAny, z } from 'zod';
 
@@ -24,7 +25,14 @@ const passwordSchema = z
     message: 'Password must have at least one special character',
   });
 
-export const createUrlSchema = z.object({
+export const createUserSchema = z.object({
   username: usernameSchema,
   pwd: passwordSchema,
 } satisfies { [k in keyof Prisma.UserCreateInput]: ZodTypeAny });
+
+export class CreateUserDTO implements z.infer<typeof createUserSchema> {
+  @ApiProperty()
+  username: string;
+  @ApiProperty()
+  pwd: string;
+}
