@@ -15,7 +15,7 @@ export class UrlsService {
   async create(urlData: Prisma.UrlCreateInput) {
     urlData.originalUrl = this.normalizeUrl(urlData.originalUrl);
     const newUrl = await this.prisma.url.create({ data: urlData });
-    return this.idToShortened(newUrl.id);
+    return `${process.env.BASE_URL}/${this.idToShortened(newUrl.id)}`;
   }
 
   async getUrls(ownerId: number) {
@@ -32,9 +32,10 @@ export class UrlsService {
           },
         },
       })
-    ).map(({ id, _count: { urlAcesses } }) => ({
+    ).map(({ id, _count: { urlAcesses }, originalUrl }) => ({
       id,
       url: `${process.env.BASE_URL}/${this.idToShortened(id)}`,
+      originalUrl,
       urlAcesses,
     }));
   }
