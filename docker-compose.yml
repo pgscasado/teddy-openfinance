@@ -2,6 +2,7 @@ version: '3'
 services:
   url-shortener-service:
     build: ./url-shortener-service
+    env_file: './url-shortener-service/.env'
     ports:
       - 8000:8000
   krakend:
