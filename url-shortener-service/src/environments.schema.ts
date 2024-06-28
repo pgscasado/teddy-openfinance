@@ -10,7 +10,7 @@ declare namespace NodeJS {
 }
 
 export const processEnvSchema = z.object({
-  DATABASE_URL: z.string(),
-  BASE_URL: z.string(),
-  JWT_SECRET: z.string(),
+  DATABASE_URL: z.string({ message: 'Database URL must be set' }),
+  BASE_URL: z.string({ message: 'Base URL must be set' }),
+  JWT_SECRET: z.string({ message: 'An JWT secret must be set' }),
 });
