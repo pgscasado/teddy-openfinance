@@ -16,18 +16,20 @@ import {
 import { UrlsService } from './urls.service';
 import { ZodPipe } from 'src/zod/zod.pipe';
 import * as UrlsSchemas from './urls-schemas';
-import { z } from 'zod';
 import { Response } from 'express';
 import { ZodFilter } from 'src/zod/zod.filter';
 import { AuthGuard, LooseAuth } from 'src/auth/auth.guard';
 import { isAuthJWT } from 'src/auth/types';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @Controller('')
+@ApiTags('urls')
 export class UrlsController {
   constructor(private urlsService: UrlsService) {}
 
   @Delete(':shortUrl')
   @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   async deleteUrl(@Param('shortUrl') shortened: string, @Req() req: Request) {
     if (!isAuthJWT(req['jwt_payload'])) {
       throw new UnauthorizedException('Must be logged in to see all your URLs');
@@ -37,11 +39,12 @@ export class UrlsController {
 
   @Post()
   @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @LooseAuth(true)
   @UseFilters(ZodFilter)
   async createUrl(
     @Body(new ZodPipe(UrlsSchemas.createUrlSchema))
-    createUrlDto: z.infer<typeof UrlsSchemas.createUrlSchema>,
+    createUrlDto: UrlsSchemas.CreateURLDTO,
     @Req() req: Request,
   ) {
     const createInput: Parameters<typeof this.urlsService.create>[0] =
@@ -53,11 +56,12 @@ export class UrlsController {
         },
       };
     }
-    return this.urlsService.create(createInput);
+    return { url: await this.urlsService.create(createInput) };
   }
 
   @Get()
   @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   async getAllUrls(@Req() req: Request) {
     if (!isAuthJWT(req['jwt_payload'])) {
       throw new UnauthorizedException('Must be logged in to see all your URLs');
@@ -82,6 +86,7 @@ export class UrlsController {
   }
 
   @Get('inspect/:shortUrl')
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   async inspectShortUrl(
     @Param('shortUrl') shortened: string,
@@ -96,10 +101,11 @@ export class UrlsController {
   @Put(':shortUrl')
   @UseFilters(ZodFilter)
   @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   async editUrl(
     @Param('shortUrl') shortened: string,
     @Body(new ZodPipe(UrlsSchemas.updateUrlSchema))
-    data: z.infer<typeof UrlsSchemas.updateUrlSchema>,
+    data: UrlsSchemas.UpdateURLDTO,
     @Req() req: Request,
   ) {
     if (!isAuthJWT(req['jwt_payload'])) {

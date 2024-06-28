@@ -13,25 +13,27 @@ import {
 import { UsersService } from './users.service';
 import { ZodPipe } from 'src/zod/zod.pipe';
 import * as UserSchemas from './user-schemas';
-import { z } from 'zod';
 import { ZodFilter } from 'src/zod/zod.filter';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { isAuthJWT } from 'src/auth/types';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @Controller('users')
+@ApiTags('users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Post('')
   @UseFilters(ZodFilter)
   createUser(
-    @Body(new ZodPipe(UserSchemas.createUrlSchema))
-    user: z.infer<typeof UserSchemas.createUrlSchema>,
+    @Body(new ZodPipe(UserSchemas.createUserSchema))
+    user: UserSchemas.CreateUserDTO,
   ) {
     return this.usersService.create(user);
   }
 
   @Get('me')
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   getUser(@Req() req: Request) {
     if (!isAuthJWT(req['jwt_payload'])) {
@@ -42,6 +44,7 @@ export class UsersController {
   }
 
   @Delete('me')
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   deleteUser(@Req() req: Request) {
     if (!isAuthJWT(req['jwt_payload'])) {
@@ -52,11 +55,12 @@ export class UsersController {
   }
 
   @Put('me')
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   updateUser(
     @Req() req: Request,
-    @Body(new ZodPipe(UserSchemas.createUrlSchema))
-    data: z.infer<typeof UserSchemas.createUrlSchema>,
+    @Body(new ZodPipe(UserSchemas.createUserSchema))
+    data: UserSchemas.CreateUserDTO,
   ) {
     if (!isAuthJWT(req['jwt_payload'])) {
       throw new UnauthorizedException();
