@@ -5,7 +5,7 @@
 Esta é uma API de encurtamento de URL desenvolvida em NestJS. A API permite criar URLs encurtadas e redirecionar para as URLs originais. A aplicação pode ser executada localmente ou usando Docker Compose.
 
 Há uma instância desse projeto disponível [aqui](https://url-shortener-pgscasado.fly.dev/).
-Especificação Swagger da API está disponível em [/docs](https://url-shortener-pgscasado.fly.dev/).
+Especificação Swagger da API está disponível em [/docs](https://url-shortener-pgscasado.fly.dev/docs).
 
 ## Funcionalidades
 
