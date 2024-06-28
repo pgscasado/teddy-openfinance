@@ -14,12 +14,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UrlsService } from './urls.service';
-import { ZodPipe } from 'src/zod/zod.pipe';
+import { ZodPipe } from '../zod/zod.pipe';
 import * as UrlsSchemas from './urls-schemas';
 import { Response } from 'express';
-import { ZodFilter } from 'src/zod/zod.filter';
-import { AuthGuard, LooseAuth } from 'src/auth/auth.guard';
-import { isAuthJWT } from 'src/auth/types';
+import { ZodFilter } from '../zod/zod.filter';
+import { AuthGuard, LooseAuth } from '../auth/auth.guard';
+import { isAuthJWT } from '../auth/types';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @Controller('')

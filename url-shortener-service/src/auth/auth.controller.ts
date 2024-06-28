@@ -1,8 +1,8 @@
 import { Body, Controller, Post, UseFilters, UsePipes } from '@nestjs/common';
-import { ZodPipe } from 'src/zod/zod.pipe';
+import { ZodPipe } from '../zod/zod.pipe';
 import { AuthenticationDTO, authenticationSchema } from './auth-schemas';
 import { AuthService } from './auth.service';
-import { ZodFilter } from 'src/zod/zod.filter';
+import { ZodFilter } from '../zod/zod.filter';
 import { ApiTags } from '@nestjs/swagger';
 
 @Controller('auth')

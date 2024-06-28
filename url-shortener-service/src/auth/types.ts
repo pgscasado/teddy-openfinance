@@ -4,7 +4,5 @@ export type AuthJWT = {
 };
 
 export function isAuthJWT(payload: any): payload is AuthJWT {
-  return (
-    typeof payload?.sub === 'number' && typeof payload?.username === 'string'
-  );
+  return typeof payload?.sub === 'number';
 }
